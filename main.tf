@@ -63,19 +63,41 @@ resource "azurerm_key_vault_secret" "spark_password" {
   value        = random_password.spark_password.result
 }
 
-# resource "azurerm_hdinsight_spark_cluster" "spark" {
-#   name                = "spark${var.name}"
-#   location            = var.region
-#   resource_group_name = azurerm_resource_group.rg.name
-#   cluster_version     = "4.0"
-#   tier                = "Standard"
+resource "azurerm_hdinsight_spark_cluster" "spark" {
+  name                = "spark${var.name}"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.rg.name
+  cluster_version     = "4.0"
+  tier                = "Standard"
 
-#   component_version {
-#     spark = "2.4"
-#   }
+  component_version {
+    spark = "2.4"
+  }
 
-#   gateway {
-#     enabled = true
+  gateway {
+    enabled  = true
+    username = random_pet.spark_username.id
+    password = random_password.spark_password.result
+  }
 
-#   }
-# }
+  roles {
+    head_node {
+      username = random_pet.spark_username.id
+      password = random_password.spark_password.result
+      vm_size  = "Standard_D12_v2"
+    }
+
+    worker_node {
+      username              = random_pet.spark_username.id
+      password              = random_password.spark_password.result
+      vm_size               = "Standard_D12_v2"
+      target_instance_count = 1
+    }
+
+    zookeeper_node {
+      username = random_pet.spark_username.id
+      password = random_password.spark_password.result
+      vm_size  = "Standard_A2_v2"
+    }
+  }
+}
