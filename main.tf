@@ -10,11 +10,18 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "sa" {
-  name                     = "sa${var.name}"
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = var.region
-  account_replication_type = "LRS"
-  account_tier             = "Standard"
+  name                      = "sa${var.name}"
+  resource_group_name       = azurerm_resource_group.rg.name
+  location                  = var.region
+  account_replication_type  = "LRS"
+  account_tier              = "Standard"
+  is_hns_enabled            = true
+  enable_https_traffic_only = true
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "adls" {
+  storage_account_id = azurerm_storage_account.sa.id
+  name               = "spark"
 }
 
 resource "azurerm_key_vault" "kv" {
