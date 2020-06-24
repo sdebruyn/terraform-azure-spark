@@ -5,3 +5,7 @@ variable "owner_object_id" {
 variable "region" {
   type = string
 }
+
+variable "name" {
+  type = string
+}

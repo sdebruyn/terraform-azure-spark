@@ -6,11 +6,11 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "rg" {
   location = var.region
-  name     = "rg${local.solution}"
+  name     = "rg${var.name}"
 }
 
 resource "azurerm_storage_account" "sa" {
-  name                     = "sa${local.solution}"
+  name                     = "sa${var.name}"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = var.region
   account_replication_type = "LRS"
@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "sa" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                = "kv${local.solution}"
+  name                = "kv${var.name}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.region
   sku_name            = "standard"
@@ -46,7 +46,7 @@ resource "azurerm_key_vault_access_policy" "owner" {
 }
 
 # resource "azurerm_hdinsight_spark_cluster" "spark" {
-#   name                = "spark${local.solution}"
+#   name                = "spark${var.name}"
 #   location            = var.region
 #   resource_group_name = azurerm_resource_group.rg.name
 #   cluster_version     = "4.0"
