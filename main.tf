@@ -9,6 +9,12 @@ resource "azurerm_resource_group" "rg" {
   name     = "rg${var.name}"
 }
 
+resource "azurerm_role_assignment" "self" {
+  scope                = azurerm_resource_group.rg.id
+  role_definition_name = "Owner"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_storage_account" "sa" {
   name                      = "sa${var.name}"
   resource_group_name       = azurerm_resource_group.rg.name
