@@ -89,7 +89,7 @@ resource "azurerm_hdinsight_spark_cluster" "spark" {
 
   storage_account_gen2 {
     is_default                   = true
-    filesystem_id                = azurerm_storage_data_lake_gen2_filesystem.fs.id
+    filesystem_id                = azurerm_storage_data_lake_gen2_filesystem.adls.id
     storage_resource_id          = azurerm_storage_account.sa.id
     managed_identity_resource_id = azurerm_user_assigned_identity.spark.id
   }
