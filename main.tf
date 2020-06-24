@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "rg" {
   name     = "rg${var.name}"
 }
 
-resource "azurerm_role_assignment" "self" {
+resource "azurerm_role_assignment" "rg_self" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Owner"
   principal_id         = data.azurerm_client_config.current.object_id
@@ -36,19 +36,19 @@ resource "azurerm_user_assigned_identity" "spark" {
   name                = "spark"
 }
 
-resource "azurerm_role_assignment" "self" {
+resource "azurerm_role_assignment" "sa_self" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-resource "azurerm_role_assignment" "owner" {
+resource "azurerm_role_assignment" "sa_owner" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = var.owner_object_id
 }
 
-resource "azurerm_role_assignment" "spark" {
+resource "azurerm_role_assignment" "sa_spark" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = azurerm_user_assigned_identity.spark.principal_id
@@ -101,6 +101,7 @@ resource "azurerm_key_vault_secret" "spark_password" {
 }
 
 resource "azurerm_hdinsight_spark_cluster" "spark" {
+  depends_on          = [azurerm_role_assignment.sa_spark]
   name                = "spark${var.name}"
   location            = var.region
   resource_group_name = azurerm_resource_group.rg.name
