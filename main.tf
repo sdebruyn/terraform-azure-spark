@@ -45,6 +45,24 @@ resource "azurerm_key_vault_access_policy" "owner" {
   certificate_permissions = local.kv_all_cert_permissions
 }
 
+resource "random_password" "spark_password" {
+  length = 32
+}
+
+resource "random_pet" "spark_username" {}
+
+resource "azurerm_key_vault_secret" "spark_username" {
+  key_vault_id = azurerm_key_vault.kv.id
+  name         = "spark-username"
+  value        = random_pet.spark_username.id
+}
+
+resource "azurerm_key_vault_secret" "spark_password" {
+  key_vault_id = azurerm_key_vault.kv.id
+  name         = "spark-password"
+  value        = random_password.spark_password.result
+}
+
 # resource "azurerm_hdinsight_spark_cluster" "spark" {
 #   name                = "spark${var.name}"
 #   location            = var.region
