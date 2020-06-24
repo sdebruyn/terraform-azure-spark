@@ -24,6 +24,30 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "adls" {
   name               = "spark"
 }
 
+resource "azurerm_user_assigned_identity" "spark" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.region
+  name                = "spark"
+}
+
+resource "azurerm_role_assignment" "self" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
+resource "azurerm_role_assignment" "owner" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = var.owner_object_id
+}
+
+resource "azurerm_role_assignment" "spark" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_user_assigned_identity.spark.principal_id
+}
+
 resource "azurerm_key_vault" "kv" {
   name                = "kv${var.name}"
   resource_group_name = azurerm_resource_group.rg.name
@@ -68,12 +92,6 @@ resource "azurerm_key_vault_secret" "spark_password" {
   key_vault_id = azurerm_key_vault.kv.id
   name         = "spark-password"
   value        = random_password.spark_password.result
-}
-
-resource "azurerm_user_assigned_identity" "spark" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.region
-  name                = "spark"
 }
 
 resource "azurerm_hdinsight_spark_cluster" "spark" {
