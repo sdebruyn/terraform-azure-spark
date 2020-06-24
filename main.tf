@@ -70,47 +70,54 @@ resource "azurerm_key_vault_secret" "spark_password" {
   value        = random_password.spark_password.result
 }
 
-# resource "azurerm_hdinsight_spark_cluster" "spark" {
-#   name                = "spark${var.name}"
-#   location            = var.region
-#   resource_group_name = azurerm_resource_group.rg.name
-#   cluster_version     = "4.0"
-#   tier                = "Standard"
+resource "azurerm_user_assigned_identity" "spark" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.region
+  name                = "spark"
+}
 
-#   component_version {
-#     spark = "2.4"
-#   }
+resource "azurerm_hdinsight_spark_cluster" "spark" {
+  name                = "spark${var.name}"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.rg.name
+  cluster_version     = "4.0"
+  tier                = "Standard"
 
-#   storage_account_gen2 {
-#     is_default          = true
-#     filesystem_id       = azurerm_storage_data_lake_gen2_filesystem.fs.id
-#     storage_resource_id = azurerm_storage_account.sa.id
-#   }
+  component_version {
+    spark = "2.4"
+  }
 
-#   gateway {
-#     enabled  = true
-#     username = random_pet.spark_username.id
-#     password = random_password.spark_password.result
-#   }
+  storage_account_gen2 {
+    is_default                   = true
+    filesystem_id                = azurerm_storage_data_lake_gen2_filesystem.fs.id
+    storage_resource_id          = azurerm_storage_account.sa.id
+    managed_identity_resource_id = azurerm_user_assigned_identity.spark.id
+  }
 
-#   roles {
-#     head_node {
-#       username = random_pet.spark_username.id
-#       password = random_password.spark_password.result
-#       vm_size  = "Standard_D12_v2"
-#     }
+  gateway {
+    enabled  = true
+    username = random_pet.spark_username.id
+    password = random_password.spark_password.result
+  }
 
-#     worker_node {
-#       username              = random_pet.spark_username.id
-#       password              = random_password.spark_password.result
-#       vm_size               = "Standard_D12_v2"
-#       target_instance_count = 1
-#     }
+  roles {
+    head_node {
+      username = random_pet.spark_username.id
+      password = random_password.spark_password.result
+      vm_size  = "Standard_D12_v2"
+    }
 
-#     zookeeper_node {
-#       username = random_pet.spark_username.id
-#       password = random_password.spark_password.result
-#       vm_size  = "Standard_A2_v2"
-#     }
-#   }
-# }
+    worker_node {
+      username              = random_pet.spark_username.id
+      password              = random_password.spark_password.result
+      vm_size               = "Standard_D12_v2"
+      target_instance_count = 1
+    }
+
+    zookeeper_node {
+      username = random_pet.spark_username.id
+      password = random_password.spark_password.result
+      vm_size  = "Standard_A2_v2"
+    }
+  }
+}
