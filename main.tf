@@ -1,3 +1,14 @@
+terraform {
+  required_version = "~> 0.12.0"
+
+  backend "remote" {
+    organization = "debruyn"
+    workspaces {
+      name = "terraform-azure-spark"
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
