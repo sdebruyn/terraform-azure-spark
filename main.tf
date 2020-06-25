@@ -89,12 +89,14 @@ resource "random_password" "spark_password" {
 resource "random_pet" "spark_username" {}
 
 resource "azurerm_key_vault_secret" "spark_username" {
+  depends_on   = [azurerm_key_vault_access_policy.self]
   key_vault_id = azurerm_key_vault.kv.id
   name         = "spark-username"
   value        = random_pet.spark_username.id
 }
 
 resource "azurerm_key_vault_secret" "spark_password" {
+  depends_on   = [azurerm_key_vault_access_policy.self]
   key_vault_id = azurerm_key_vault.kv.id
   name         = "spark-password"
   value        = random_password.spark_password.result
